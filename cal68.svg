@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdeee0"/><stop offset="1" stop-color="#f2c79b"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="500" fill="url(#bg)"/>
+  <!-- blazer navy -->
+  <path d="M60 500 Q75 405 145 378 L200 400 L255 378 Q325 405 340 500 Z" fill="#1f2f52"/>
+  <path d="M145 378 L200 400 L178 430 L140 400 Z" fill="#182743"/>
+  <path d="M255 378 L200 400 L222 430 L260 400 Z" fill="#182743"/>
+  <!-- kemeja -->
+  <polygon points="172,380 228,380 200,440" fill="#f5f7fa"/>
+  <!-- dasi merah -->
+  <polygon points="200,408 210,420 200,478 190,420" fill="#c0392b"/>
+  <!-- leher -->
+  <rect x="184" y="322" width="32" height="62" rx="14" fill="#f2c49a"/>
+  <!-- kepala -->
+  <ellipse cx="200" cy="250" rx="80" ry="90" fill="#fbdcb6"/>
+  <!-- telinga -->
+  <circle cx="118" cy="258" r="13" fill="#fbdcb6"/>
+  <circle cx="282" cy="258" r="13" fill="#fbdcb6"/>
+  <!-- rambut pirang runcing ala anime -->
+  <path d="M120 232 L132 168 L150 196 L164 146 L182 190 L200 138 L218 190 L236 146 L250 196 L268 168 L280 232 Q268 196 244 188 Q250 208 244 218 Q228 184 200 182 Q172 184 156 218 Q150 208 156 188 Q132 196 120 232 Z" fill="#e2b24c"/>
+  <path d="M164 160 L182 190 L158 192 Z" fill="#f0c96c"/>
+  <path d="M236 160 L218 190 L242 192 Z" fill="#f0c96c"/>
+  <!-- alis -->
+  <path d="M146 232 Q164 224 182 232" stroke="#c79a3a" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M218 232 Q236 224 254 232" stroke="#c79a3a" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- mata anime hijau -->
+  <ellipse cx="164" cy="262" rx="15" ry="19" fill="#ffffff"/>
+  <circle cx="164" cy="266" r="11" fill="#4f7d4a"/>
+  <circle cx="164" cy="266" r="6" fill="#20331e"/>
+  <circle cx="168" cy="261" r="3.5" fill="#ffffff"/>
+  <ellipse cx="236" cy="262" rx="15" ry="19" fill="#ffffff"/>
+  <circle cx="236" cy="266" r="11" fill="#4f7d4a"/>
+  <circle cx="236" cy="266" r="6" fill="#20331e"/>
+  <circle cx="240" cy="261" r="3.5" fill="#ffffff"/>
+  <path d="M149 250 Q164 240 179 250" stroke="#6b4d1f" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M221 250 Q236 240 251 250" stroke="#6b4d1f" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- hidung -->
+  <path d="M198 288 Q202 292 198 296" stroke="#df9f68" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- senyum lebar -->
+  <path d="M174 310 Q200 332 226 310" stroke="#a4522f" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- rona pipi -->
+  <ellipse cx="148" cy="300" rx="14" ry="7" fill="#f2a68c" opacity="0.5"/>
+  <ellipse cx="252" cy="300" rx="14" ry="7" fill="#f2a68c" opacity="0.5"/>
+</svg>

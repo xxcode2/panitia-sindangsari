@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rekapitulasi Suara — Panitia Pilkades</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2A211B; --ink-soft:#6B5D52; --paper:#FBF6EE; --paper-2:#F3EAD9;
+    --line:#E4D8C6; --merah:#9E1B26; --hijau:#2E5B41; --kuning:#C79A2B;
+    --shadow:0 8px 30px rgba(42,33,27,0.10);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;font-family:"Public Sans",sans-serif;color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(158,27,38,0.06), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(46,91,65,0.06), transparent 55%),
+      var(--paper);
+    min-height:100vh;
+  }
+  h1,h2,h3{font-family:"Fraunces",serif;margin:0;}
+  .topbar{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    padding:16px 20px;background:var(--ink);color:#fff;
+    position:sticky;top:0;z-index:20;box-shadow:var(--shadow);
+  }
+  .topbar .brand{display:flex;flex-direction:column;margin-right:auto;}
+  .topbar .brand .t{font-family:"Fraunces",serif;font-weight:700;font-size:1.15rem;line-height:1.1;}
+  .topbar .brand .s{font-size:0.78rem;opacity:0.8;margin-top:2px;}
+  .live{display:inline-flex;align-items:center;gap:7px;font-size:0.74rem;font-weight:800;
+    letter-spacing:0.06em;background:rgba(46,91,65,0.25);color:#bfe6cf;padding:5px 11px;border-radius:999px;}
+  .live .dot{width:9px;height:9px;border-radius:50%;background:#41d67f;box-shadow:0 0 0 0 rgba(65,214,127,0.7);animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(65,214,127,0.6);}70%{box-shadow:0 0 0 8px rgba(65,214,127,0);}100%{box-shadow:0 0 0 0 rgba(65,214,127,0);}}
+  .btn{cursor:pointer;border:none;border-radius:10px;font-family:inherit;font-weight:700;font-size:0.85rem;padding:10px 15px;transition:.15s;}
+  .btn-light{background:rgba(255,255,255,0.14);color:#fff;}
+  .btn-light:hover{background:rgba(255,255,255,0.26);}
+  .btn-danger{background:var(--merah);color:#fff;}
+  .btn-danger:hover{filter:brightness(1.1);}
+  .btn-primary{background:var(--merah);color:#fff;}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-outline{background:transparent;color:var(--ink);border:1.6px solid var(--ink);}
+  .btn-outline:hover{background:var(--ink);color:#fff;}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:20px;display:grid;grid-template-columns:400px 1fr;gap:20px;}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr;}}
+
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);}
+  .panel{padding:18px;}
+  .panel h2{font-size:1.05rem;margin-bottom:12px;}
+
+  /* scanner */
+  .cam-box{position:relative;width:100%;aspect-ratio:4/3;background:#1a1410;border-radius:12px;overflow:hidden;border:1px solid var(--line);}
+  .cam-box #reader{position:absolute;inset:0;}
+  .cam-box #reader video{width:100%!important;height:100%!important;object-fit:cover;}
+  .cam-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#cbb; font-size:0.85rem;}
+  .cam-ph svg{width:52px;height:52px;opacity:.7;}
+  .scan-msg{min-height:20px;font-size:0.82rem;font-weight:700;margin-top:10px;}
+  .scan-msg.ok{color:var(--hijau);}
+  .scan-msg.err{color:var(--merah);}
+  .scan-msg.warn{color:var(--kuning);}
+  .manual{display:flex;gap:8px;margin-top:12px;}
+  .manual input{flex:1;padding:11px 12px;border-radius:9px;border:1.6px solid var(--line);font-family:"JetBrains Mono",monospace;font-size:0.82rem;}
+
+  /* last reveal */
+  .reveal{margin-top:14px;border:2px dashed var(--line);border-radius:12px;padding:14px;text-align:center;background:var(--paper-2);}
+  .reveal .lbl{font-size:0.72rem;letter-spacing:0.08em;color:var(--ink-soft);font-weight:800;}
+  .reveal .num{font-family:"JetBrains Mono",monospace;font-weight:800;font-size:2.6rem;color:var(--merah);line-height:1.1;}
+  .reveal .nm{font-weight:800;font-size:1.1rem;}
+  .reveal .mt{font-size:0.72rem;color:var(--ink-soft);margin-top:4px;}
+  .reveal.flash{animation:flash .5s ease;}
+  @keyframes flash{0%{background:#d8f3e2;}100%{background:var(--paper-2);}}
+
+  /* board */
+  .summary{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .stat{flex:1;min-width:120px;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:center;}
+  .stat .k{font-size:0.72rem;letter-spacing:0.05em;color:var(--ink-soft);font-weight:800;}
+  .stat .v{font-family:"JetBrains Mono",monospace;font-weight:800;font-size:1.7rem;margin-top:2px;}
+
+  .leader{border-radius:12px;padding:14px 16px;margin-bottom:16px;background:linear-gradient(90deg,rgba(199,154,43,0.16),rgba(199,154,43,0.05));border:1px solid rgba(199,154,43,0.4);display:flex;align-items:center;gap:12px;}
+  .leader .crown{font-size:1.6rem;}
+  .leader .txt{font-size:0.92rem;}
+  .leader .txt strong{font-size:1.05rem;}
+
+  .board{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+  .ccard{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;position:relative;overflow:hidden;}
+  .ccard.lead{border-color:var(--kuning);box-shadow:0 0 0 2px rgba(199,154,43,0.35);}
+  .ccard .top{display:flex;align-items:center;gap:10px;}
+  .ccard .badge{width:34px;height:34px;border-radius:9px;background:var(--merah);color:#fff;font-family:"JetBrains Mono",monospace;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
+  .ccard .cname{font-weight:800;font-size:0.98rem;line-height:1.15;}
+  .ccard .cmoto{font-size:0.74rem;color:var(--ink-soft);}
+  .ccard .count{font-family:"JetBrains Mono",monospace;font-weight:800;font-size:2.3rem;margin:8px 0 2px;color:var(--ink);}
+  .ccard .count .u{font-size:0.9rem;color:var(--ink-soft);font-weight:700;margin-left:4px;}
+  .bar{height:12px;background:var(--paper-2);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:6px;}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--hijau),#4b8b66);width:0%;transition:width .5s cubic-bezier(.2,.8,.2,1);}
+  .ccard .pct{font-size:0.76rem;color:var(--ink-soft);margin-top:5px;font-weight:700;}
+  .bump{animation:bump .45s ease;}
+  @keyframes bump{0%{transform:scale(1);}35%{transform:scale(1.06);}100%{transform:scale(1);}}
+
+  .ticker{margin-top:16px;border-top:1px solid var(--line);padding-top:10px;font-size:0.76rem;color:var(--ink-soft);}
+  .ticker b{color:var(--ink);}
+  .empty{padding:26px;text-align:center;color:var(--ink-soft);}
+
+  .hidden-file{display:none;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="t">Rekapitulasi Suara <span id="metaDesa"></span></div>
+    <div class="s" id="metaKec"></div>
+  </div>
+  <span class="live"><span class="dot"></span>LIVE</span>
+  <button class="btn btn-light" id="btnCam">Aktifkan Kamera</button>
+  <button class="btn btn-light" id="btnSound">Suara: ON</button>
+  <button class="btn btn-light" id="btnFs">Layar Penuh</button>
+  <button class="btn btn-danger" id="btnReset">Reset</button>
+</div>
+
+<div class="wrap">
+  <!-- LEFT: scanner -->
+  <div class="card panel">
+    <h2>Pemindai Barcode Suara</h2>
+    <div class="cam-box">
+      <div id="reader"></div>
+      <div class="cam-ph" id="camPh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3z"/><path d="M19 14h2v2"/><path d="M14 19h2v2"/><path d="M19 19h2v2"/></svg>
+        <span>Kamera mati — tekan "Aktifkan Kamera"</span>
+      </div>
+    </div>
+    <div class="scan-msg" id="msg"></div>
+
+    <div class="manual">
+      <input type="text" id="manualInput" placeholder="atau ketik kode PKD|... lalu Enter" autocomplete="off">
+      <button class="btn btn-primary" id="btnManual">Hitung</button>
+    </div>
+
+    <div class="reveal" id="reveal">
+      <div class="lbl">BARCODE TERAKHIR DIBACA</div>
+      <div class="num" id="revNum">—</div>
+      <div class="nm" id="revNama">Belum ada scan</div>
+      <div class="mt" id="revMeta"></div>
+    </div>
+
+    <p style="font-size:0.76rem;color:var(--ink-soft);line-height:1.5;margin:14px 0 0;">
+      Arahkan barcode dari resi pemilih ke kamera. Tiap barcode hanya dihitung <b>satu kali</b> (kode unik).
+      Hasil langsung tampil &amp; tersimpan otomatis di perangkat ini.
+    </p>
+  </div>
+
+  <!-- RIGHT: board -->
+  <div class="card panel">
+    <h2>Hasil Sementara (Real-time)</h2>
+    <div class="summary">
+      <div class="stat"><div class="k">TOTAL SUARA MASUK</div><div class="v" id="stTotal">0</div></div>
+      <div class="stat"><div class="k">BARCODE UNIK</div><div class="v" id="stUnique">0</div></div>
+      <div class="stat"><div class="k">GANDA DITOLAK</div><div class="v" id="stDup">0</div></div>
+    </div>
+    <div id="leaderSlot"></div>
+    <div class="board" id="board"></div>
+    <div class="ticker" id="ticker"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var RESULT_KEY = "pilkades_hasil_v1";
+  var ROSTER_KEY = "pilkades_roster";
+  var META_KEY = "pilkades_meta";
+
+  var roster = loadJSON(ROSTER_KEY, []);
+  var meta = loadJSON(META_KEY, { desa:"", kec:"" });
+  var state = loadJSON(RESULT_KEY, { counts:{}, uids:{}, dup:0, log:[] });
+
+  var cam = null, camActive = false, camEnabledOnce = false;
+  var soundOn = true, audioCtx = null;
+  var displayNum = {}; // current animated value per nomor
+
+  function loadJSON(k, def){ try{ var r = localStorage.getItem(k); return r ? JSON.parse(r) : def; }catch(e){ return def; } }
+  function save(){ try{ localStorage.setItem(RESULT_KEY, JSON.stringify(state)); }catch(e){ console.warn(e); } }
+
+  function namaFor(no){
+    var c = roster.find(function(x){ return String(x.no) === String(no); });
+    return c ? c.nama : null;
+  }
+  function motoFor(no){
+    var c = roster.find(function(x){ return String(x.no) === String(no); });
+    return c ? (c.moto || "") : "";
+  }
+
+  // meta header
+  document.getElementById("metaDesa").textContent = meta.desa ? ("Desa " + meta.desa) : "";
+  document.getElementById("metaKec").textContent = meta.kec || "";
+  document.title = "Rekap" + (meta.desa ? " — Desa " + meta.desa : "") + " — Panitia";
+
+  function setMsg(text, type){
+    var el = document.getElementById("msg");
+    el.textContent = text || "";
+    el.className = "scan-msg" + (type ? " " + type : "");
+  }
+
+  function totalVotes(){
+    var t = 0; Object.keys(state.counts).forEach(function(k){ t += state.counts[k]; }); return t;
+  }
+
+  // ---- Beep (tally sound) ----
+  function beep(){
+    if(!soundOn) return;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "square"; o.frequency.value = 880;
+      o.connect(g); g.connect(audioCtx.destination);
+      var now = audioCtx.currentTime;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.15, now + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+      o.start(now); o.stop(now + 0.1);
+    }catch(e){ /* ignore */ }
+  }
+
+  // ---- Count-up animation ----
+  function animateTo(no, to){
+    var el = document.getElementById("cnt_" + no);
+    if(!el){ displayNum[no] = to; return; }
+    var from = displayNum[no] == null ? 0 : displayNum[no];
+    displayNum[no] = to;
+    var dur = 500, start = performance.now();
+    function step(now){
+      var p = Math.min(1, (now - start) / dur);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(from + (to - from) * eased);
+      if(p < 1) requestAnimationFrame(step);
+      else el.textContent = to;
+    }
+    requestAnimationFrame(step);
+  }
+
+  function ensureCandidates(){
+    // include any nomor present in counts even if not in roster
+    var nums = {};
+    roster.forEach(function(c){ nums[String(c.no)] = true; });
+    Object.keys(state.counts).forEach(function(n){ nums[n] = true; });
+    var list = Object.keys(nums).map(function(n){ return { no:n, nama: namaFor(n), moto: motoFor(n) }; })
+      .sort(function(a,b){ return (Number(a.no) - Number(b.no)); });
+    return list;
+  }
+
+  function renderBoard(animNo){
+    var list = ensureCandidates();
+    var total = totalVotes();
+    var board = document.getElementById("board");
+
+    if(!list.length){
+      board.innerHTML = '<div class="empty">Belum ada data calon / suara.<br>Mulai dengan memindai barcode dari halaman pemilih.</div>';
+      document.getElementById("leaderSlot").innerHTML = "";
+    }else{
+      // build/update DOM once, keep node identity for smooth animation
+      var byNo = {};
+      Array.prototype.forEach.call(board.children, function(ch){ byNo[ch.getAttribute("data-no")] = ch; });
+      list.forEach(function(c){
+        var node = byNo[String(c.no)];
+        if(!node){
+          node = document.createElement("div");
+          node.className = "ccard";
+          node.setAttribute("data-no", c.no);
+          node.innerHTML =
+            '<div class="top"><div class="badge">'+c.no+'</div>'+
+            '<div><div class="cname">'+(c.nama || ("Calon Nomor "+c.no))+'</div>'+
+            '<div class="cmoto">'+(c.moto || "")+'</div></div></div>'+
+            '<div class="count"><span id="cnt_'+c.no+'">0</span><span class="u">suara</span></div>'+
+            '<div class="bar"><i></i></div>'+
+            '<div class="pct">0%</div>';
+          board.appendChild(node);
+          displayNum[c.no] = 0;
+        }
+        byNo[String(c.no)] = null;
+      });
+      // remove stale
+      Object.keys(byNo).forEach(function(k){ if(byNo[k]) byNo[k].remove(); });
+
+      // update values (sorted by count for display order)
+      var sorted = list.slice().sort(function(a,b){ return (state.counts[String(b.no)]||0) - (state.counts[String(a.no)]||0); });
+      var topCount = sorted.length ? (state.counts[String(sorted[0].no)]||0) : 0;
+      var leaders = sorted.filter(function(c){ return (state.counts[String(c.no)]||0) === topCount; });
+      sorted.forEach(function(c){
+        var card = board.querySelector('[data-no="'+c.no+'"]');
+        if(!card) return;
+        var cnt = state.counts[String(c.no)] || 0;
+        var pct = total > 0 ? Math.round((cnt/total)*100) : 0;
+        card.classList.toggle("lead", total > 0 && cnt === topCount && leaders.length === 1);
+        card.querySelector(".bar > i").style.width = pct + "%";
+        card.querySelector(".pct").textContent = pct + "% dari suara masuk";
+        if(cnt !== displayNum[c.no]){ animateTo(c.no, cnt); }
+        if(animNo === String(c.no)){ card.classList.remove("bump"); void card.offsetWidth; card.classList.add("bump"); }
+      });
+
+      // leader banner
+      var ls = document.getElementById("leaderSlot");
+      if(total === 0){
+        ls.innerHTML = '<div class="leader" style="background:var(--paper-2);border-color:var(--line);"><span class="crown">⏳</span><span class="txt">Menunggu suara masuk…</span></div>';
+      }else if(leaders.length > 1){
+        var names = leaders.map(function(c){ return c.nama || ("No. "+c.no); }).join(" & ");
+        ls.innerHTML = '<div class="leader"><span class="crown">=</span><span class="txt">Sementara <strong>seri</strong> antara '+names+' ('+topCount+' suara).</span></div>';
+      }else{
+        var ld = leaders[0];
+        ls.innerHTML = '<div class="leader"><span class="crown">👑</span><span class="txt">Sementara unggul: <strong>'+(ld.nama || ("Nomor "+ld.no))+'</strong> (Nomor '+ld.no+') — '+topCount+' suara ('+Math.round(topCount/total*100)+'%).</span></div>';
+      }
+    }
+
+    document.getElementById("stTotal").textContent = total;
+    document.getElementById("stUnique").textContent = Object.keys(state.uids).length;
+    document.getElementById("stDup").textContent = state.dup || 0;
+
+    // ticker (last 8 scans)
+    var tk = document.getElementById("ticker");
+    if(state.log && state.log.length){
+      tk.innerHTML = "<b>Log scan terbaru:</b> " + state.log.slice(-8).reverse().map(function(l){
+        return "["+l.t+"] No."+l.no+(l.nama?(" "+l.nama):"");
+      }).join(" · ");
+    }else{ tk.innerHTML = "<b>Log scan terbaru:</b> —"; }
+  }
+
+  function reveal(no, uid, first){
+    var rev = document.getElementById("reveal");
+    document.getElementById("revNum").textContent = "Nomor " + no;
+    document.getElementById("revNama").textContent = namaFor(no) || ("Calon Nomor " + no);
+    document.getElementById("revMeta").textContent = (first ? "Dihitung" : "Sudah dihitung") + " · ID " + uid + " · " + new Date().toLocaleTimeString("id-ID", {hour12:false});
+    rev.classList.remove("flash"); void rev.offsetWidth; rev.classList.add("flash");
+  }
+
+  // ---- Core: process one scanned code ----
+  function processCode(raw){
+    var code = (raw || "").trim();
+    if(!code){ setMsg("Kode kosong.", "err"); return; }
+    if(code.indexOf("PKD|") !== 0){ setMsg("Bukan barcode hasil pilih (harus diawali PKD|).", "err"); return; }
+    var parts = code.split("|");
+    if(parts.length < 3){ setMsg("Barcode tidak valid.", "err"); return; }
+    var no = parts[1], uid = parts[2];
+
+    if(state.uids[uid]){
+      state.dup = (state.dup || 0) + 1; save();
+      setMsg("Barcode " + uid + " SUDAH dihitung — tidak dihitung dua kali.", "warn");
+      reveal(no, uid, false);
+      renderBoard();
+      return;
+    }
+
+    state.counts[String(no)] = (state.counts[String(no)] || 0) + 1;
+    state.uids[uid] = 1;
+    if(!state.log) state.log = [];
+    state.log.push({ t: new Date().toLocaleTimeString("id-ID",{hour12:false}), no: no, nama: namaFor(no) || "" });
+    if(state.log.length > 200) state.log = state.log.slice(-200);
+    save();
+
+    beep();
+    setMsg("Masuk: Nomor " + no + " (" + (namaFor(no) || "Calon") + "). Total: " + totalVotes() + ".", "ok");
+    reveal(no, uid, true);
+    renderBoard(String(no));
+  }
+
+  // ---- Camera ----
+  function stopCam(){
+    if(cam && camActive){
+      try{ cam.stop().then(function(){ cam.clear(); }).catch(function(){}); }catch(e){}
+    }
+    camActive = false;
+    document.getElementById("camPh").style.display = "flex";
+    document.getElementById("btnCam").textContent = "Aktifkan Kamera";
+  }
+  function startCam(){
+    if(typeof Html5Qrcode === "undefined"){ setMsg("Pustaka pemindai tidak tersedia. Gunakan input manual.", "err"); return; }
+    try{
+      cam = cam || new Html5Qrcode("reader");
+      cam.start(
+        { facingMode: "environment" },
+        { fps: 12, qrbox: 220 },
+        function(text){ processCode(text); },
+        function(){}
+      ).then(function(){
+        camActive = true; camEnabledOnce = true;
+        document.getElementById("camPh").style.display = "none";
+        document.getElementById("btnCam").textContent = "Matikan Kamera";
+        setMsg("Kamera aktif — siap memindai.", "ok");
+      }).catch(function(){
+        setMsg("Tidak bisa mengakses kamera. Gunakan input manual.", "err");
+      });
+    }catch(e){ setMsg("Gagal menjalankan kamera.", "err"); }
+  }
+
+  document.getElementById("btnCam").addEventListener("click", function(){
+    if(camActive) stopCam(); else startCam();
+  });
+  document.getElementById("btnManual").addEventListener("click", function(){
+    processCode(document.getElementById("manualInput").value);
+    document.getElementById("manualInput").value = "";
+  });
+  document.getElementById("manualInput").addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ e.preventDefault(); processCode(this.value); this.value = ""; }
+  });
+
+  document.getElementById("btnSound").addEventListener("click", function(){
+    soundOn = !soundOn; this.textContent = "Suara: " + (soundOn ? "ON" : "OFF");
+  });
+
+  document.getElementById("btnFs").addEventListener("click", function(){
+    var el = document.documentElement;
+    if(document.fullscreenElement){ (document.exitFullscreen||document.webkitExitFullscreen).call(document); }
+    else { (el.requestFullscreen||el.webkitRequestFullscreen).call(el); }
+  });
+
+  document.getElementById("btnReset").addEventListener("click", function(){
+    var pin = prompt("Masukkan PIN panitia untuk reset rekap (kosongkan + OK bila tanpa PIN):");
+    if(pin === null) return; // cancel
+    var expected = "";
+    try{ expected = window.PIN_PANITIA || ""; }catch(e){}
+    // allow demo reset without pin requirement complexity: require confirm
+    if(expected && pin !== expected){ alert("PIN salah. Reset dibatalkan."); return; }
+    if(!confirm("Yakin menghapus SELURUH hasil rekap? Data tidak dapat dikembalikan.")) return;
+    state = { counts:{}, uids:{}, dup:0, log:[] }; save();
+    displayNum = {};
+    document.getElementById("board").innerHTML = "";
+    setMsg("Rekap direset.", "warn");
+    renderBoard();
+  });
+
+  // Cross-tab real-time sync (e.g. projector tab + scanning tab on same device)
+  window.addEventListener("storage", function(e){
+    if(e.key === RESULT_KEY){ state = loadJSON(RESULT_KEY, { counts:{}, uids:{}, dup:0, log:[] }); renderBoard(); }
+    if(e.key === ROSTER_KEY){ roster = loadJSON(ROSTER_KEY, []); renderBoard(); }
+  });
+
+  renderBoard();
+})();
+</script>
+</body>
+</html>

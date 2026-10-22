@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Undangan Memilih — Pilkades Sindangsari 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --ink:#2A211B; --ink-soft:#6B5D52; --line:#D8C9B4;
+    --merah:#9E1B26; --hijau:#2E5B41; --kuning:#C79A2B; --paper:#FBF6EE;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:#e9e2d6; color:var(--ink);
+    font-family:"Public Sans", system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:"Fraunces", Georgia, serif;}
+  .mono{font-family:"JetBrains Mono", monospace;}
+
+  /* ---------- Toolbar (tidak ikut tercetak) ---------- */
+  .toolbar{
+    position:sticky; top:0; z-index:20; background:var(--ink); color:#fff;
+    padding:12px 18px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center;
+  }
+  .toolbar input{
+    font:inherit; padding:8px 10px; border-radius:8px; border:1px solid #555; background:#fff; color:#111; min-width:150px;
+  }
+  .toolbar button{
+    font:inherit; font-weight:700; padding:9px 16px; border-radius:8px; border:0; cursor:pointer;
+  }
+  .toolbar .print{background:var(--merah); color:#fff;}
+  .toolbar .sample{background:#3a3128; color:#fff;}
+  .toolbar label{font-size:0.78rem; opacity:0.85; display:flex; flex-direction:column; gap:3px;}
+  .hint{width:100%; text-align:center; font-size:0.78rem; opacity:0.8; margin-top:2px;}
+
+  /* ---------- Lembar A4 ---------- */
+  .sheet{
+    width:210mm; min-height:297mm; margin:22px auto; background:#fff; padding:16mm 18mm;
+    box-shadow:0 10px 40px rgba(0,0,0,0.22); position:relative; display:flex; flex-direction:column;
+  }
+  .border-frame{ position:absolute; inset:8mm; border:2px solid var(--merah); border-radius:4px; pointer-events:none; }
+  .border-frame::after{ content:""; position:absolute; inset:3px; border:1px solid var(--kuning); border-radius:3px; }
+  .inner{ position:relative; z-index:1; display:flex; flex-direction:column; height:100%; }
+
+  /* Kop */
+  .kop{ text-align:center; border-bottom:3px double var(--ink); padding-bottom:10px; margin-bottom:6px; }
+  .kop .logo{
+    width:64px; height:64px; border-radius:50%; margin:0 auto 8px; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 35% 30%, #f6e6b8, var(--kuning)); border:2px solid var(--ink); color:var(--ink);
+    font-family:"Fraunces", serif; font-weight:900; font-size:0.7rem; letter-spacing:0.02em;
+  }
+  .kop .l1{ font-size:0.82rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-soft); }
+  .kop .l2{ font-family:"Fraunces", serif; font-weight:900; font-size:1.5rem; line-height:1.1; text-transform:uppercase; }
+  .kop .l3{ font-size:0.86rem; color:var(--ink-soft); margin-top:2px; }
+
+  .judul-wrap{ text-align:center; margin:14px 0 6px; }
+  .judul{ font-family:"Fraunces", serif; font-weight:900; font-size:1.25rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--merah); }
+  .nomor{ font-size:0.85rem; margin-top:2px; }
+  .garis-putus{ border-top:1.5px dashed var(--line); width:60%; margin:6px auto; }
+
+  .isi{ font-size:0.95rem; line-height:1.65; margin-top:8px; }
+  .isi p{ margin:6px 0; }
+
+  .data{ margin:12px 0; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .data .row{ display:flex; padding:8px 14px; border-bottom:1px solid #efe7d8; font-size:0.92rem; }
+  .data .row:last-child{ border-bottom:0; }
+  .data .k{ width:170px; color:var(--ink-soft); }
+  .data .v{ font-weight:700; }
+  .data .titik{ flex:1; }
+
+  .bawah{ display:flex; gap:16px; align-items:flex-end; margin-top:auto; padding-top:14px; }
+  /* Baris bawah kop: QR di kiri, judul surat di tengah */
+  .atas{ display:flex; align-items:center; gap:18px; margin:14px 0 6px; }
+  .atas .qbox{ flex:0 0 auto; order:0; }
+  .atas .judul-wrap{ flex:1; margin:0; }
+  /* Tempat cap ibu jari (sidik jari tinta) di bawah tengah */
+  .jempol{ display:flex; flex-direction:column; align-items:center; gap:6px; margin:16px auto 2px; }
+  .jempol img{ width:clamp(92px,20vw,128px); height:auto; display:block; }
+  .jempol span{ font-size:0.8rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); }
+  .qbox{
+    flex:0 0 auto; text-align:center; border:1.5px solid var(--ink); border-radius:12px; padding:12px 14px; background:var(--paper);
+  }
+  .qbox .cap{ font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; }
+  #qr{ display:flex; justify-content:center; }
+  #qr img, #qr canvas{ display:block; }
+  .qbox .kode{ font-size:0.72rem; margin-top:8px; word-break:break-all; color:var(--ink); }
+  .qbox .cat{ font-size:0.64rem; margin-top:4px; color:var(--hijau); font-weight:700; }
+
+  .ttd{ flex:1; text-align:right; font-size:0.9rem; }
+  .ttd .tempat{ margin-bottom:2px; }
+  .ttd .role{ font-weight:700; }
+  .ttd .space{ height:56px; }
+  .ttd .nama{ font-weight:800; text-decoration:underline; }
+
+  .foot{ text-align:center; font-size:0.68rem; color:var(--ink-soft); margin-top:14px; border-top:1px solid #efe7d8; padding-top:8px; }
+
+  @media print{
+    body{ background:#fff; }
+    .toolbar{ display:none !important; }
+    .sheet{ margin:0; box-shadow:none; width:auto; min-height:auto; }
+    @page{ size:A4; margin:0; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Toolbar isi data + cetak (tidak ikut tercetak) -->
+  <div class="toolbar">
+    <label>Nama Warga <input id="inNama" placeholder="cth: Budi Santoso"></label>
+    <label>Dusun / Kampung <input id="inDusun" placeholder="cth: Krajan"></label>
+    <label>RT / RW <input id="inRtrw" placeholder="cth: 003 / 005"></label>
+    <label>No. Urut DPT <input id="inUrut" placeholder="cth: 042"></label>
+    <button class="sample" onclick="isiContoh()">Isi Data (opsional)</button>
+    <button class="print" onclick="window.print()">Cetak Undangan (A4)</button>
+    <div class="hint">Uji coba: <b>satu QR berlaku untuk semua pemilih</b> — cukup fotocopy lembar ini, <b>tidak perlu menulis nama</b>. Scan QR di halaman awal aplikasi untuk langsung memilih.</div>
+  </div>
+
+  <!-- Lembar A4 -->
+  <div class="sheet">
+    <div class="border-frame"></div>
+    <div class="inner">
+      <div class="kop">
+        <div class="logo">DESA</div>
+        <div class="l1">Panitia Pemilihan Kepala Desa</div>
+        <div class="l2">Pilkades Sindangsari 2026</div>
+        <div class="l3">Kecamatan Kasomalang, Kabupaten Subang, Provinsi Jawa Barat</div>
+      </div>
+
+      <div class="atas">
+        <div class="qbox">
+          <div class="cap">QR Masuk TPS</div>
+          <div id="qr"></div>
+          <div class="kode mono" id="kodeText">UND-SINDANGSARI</div>
+          <div class="cat">Satu QR untuk semua &bull; tanpa nama</div>
+        </div>
+        <div class="judul-wrap">
+          <div class="judul">Undangan Memberikan Suara</div>
+          <div class="nomor">Nomor: 005/PPKDES-KK/2026</div>
+          <div class="garis-putus"></div>
+        </div>
+      </div>
+
+      <div class="isi">
+        <p>Assalamu&rsquo;alaikum Warahmatullahi Wabarakatuh / Salam Sejahtera,</p>
+        <p>Sehubungan dengan pelaksanaan Pemilihan Kepala Desa (Pilkades) Serentak Tahun 2026, kami mengundang Bapak/Ibu/Saudara/i Warga Desa untuk memberikan suara di Tempat Pemungutan Suara (TPS) pada:</p>
+        <p style="text-align:center; font-weight:700; margin:8px 0;">
+          Hari / Tanggal : Ahad, 15 November 2026 &nbsp;&bull;&nbsp; Pukul 07.00 &ndash; 13.00 WIB<br>
+          Tempat : Balai Desa / TPS setempat
+        </p>
+        <p>Berkas identitas pemilih adalah sebagai berikut:</p>
+      </div>
+
+      <div class="data">
+        <div class="row"><div class="k">Nama Lengkap</div><div class="v" id="outNama">—</div></div>
+        <div class="row"><div class="k">Dusun / Kampung</div><div class="v" id="outDusun">—</div></div>
+        <div class="row"><div class="k">RT / RW</div><div class="v" id="outRtrw">—</div></div>
+        <div class="row"><div class="k">No. Urut (DPT)</div><div class="v" id="outUrut">—</div></div>
+        <div class="row"><div class="k">TPS</div><div class="v" id="outTps">—</div></div>
+      </div>
+
+      <div class="isi">
+        <p>Harap hadir tepat waktu dengan <b>menunjukkan QR pada undangan ini</b> kepada pemindai di TPS untuk mulai menggunakan hak pilih. QR pada undangan ini <b>bersifat umum dan dapat difotokopi</b> — tidak perlu menuliskan nama; satu QR berlaku untuk semua pemilih.</p>
+      </div>
+
+      <div class="bawah">
+        <div class="ttd">
+          <div class="tempat">Sindangsari, 01 November 2026</div>
+          <div class="role">Ketua Panitia Pilkades,</div>
+          <div class="space"></div>
+          <div class="nama">( ............................. )</div>
+        </div>
+      </div>
+
+      <div class="jempol">
+        <img src="jempol.webp" alt="Ibu jari">
+        <span>Letakkan Ibu Jari di Sini</span>
+      </div>
+
+      <div class="foot">
+        Dokumen undangan ini adalah bagian dari sosialisasi Pilkades Digital Desa Sindangsari. Suara Anda sangat menentukan kemajuan desa.
+      </div>
+    </div>
+  </div>
+
+<script>
+  var SHARED_INVITE = "UND-SINDANGSARI";
+
+  function renderQR(){
+    var box = document.getElementById("qr");
+    if(!box) return;
+    box.innerHTML = "";
+    if(typeof QRCode !== "undefined"){
+      new QRCode(box, {
+        text: SHARED_INVITE,
+        width: 132, height: 132,
+        colorDark: "#111111", colorLight: "#ffffff",
+        correctLevel: (QRCode.CorrectLevel && QRCode.CorrectLevel.M) || 0
+      });
+    }else{
+      box.innerHTML = '<div class="mono" style="font-size:0.7rem;word-break:break-all;">'+SHARED_INVITE+'</div>';
+    }
+    var t = document.getElementById("kodeText"); if(t) t.textContent = SHARED_INVITE;
+  }
+
+  function bind(src, out){
+    var s = document.getElementById(src), o = document.getElementById(out);
+    if(s && o) s.addEventListener("input", function(){ o.textContent = s.value.trim() || "—"; });
+  }
+  bind("inNama","outNama");
+  bind("inDusun","outDusun");
+  bind("inRtrw","outRtrw");
+  bind("inUrut","outUrut");
+
+  function isiContoh(){
+    var d = { inNama:"Warga Desa Sindangsari", inDusun:"Semua Dusun / Kampung", inRtrw:"—", inUrut:"—" };
+    for(var k in d){ document.getElementById(k).value = d[k]; }
+    document.getElementById("outNama").textContent = d.inNama;
+    document.getElementById("outDusun").textContent = d.inDusun;
+    document.getElementById("outRtrw").textContent = d.inRtrw;
+    document.getElementById("outUrut").textContent = d.inUrut;
+    document.getElementById("outTps").textContent = "Sesuai domisili masing-masing";
+  }
+
+  renderQR();
+  isiContoh();
+</script>
+</body>
+</html>
