@@ -105,9 +105,37 @@
   .empty{padding:26px;text-align:center;color:var(--ink-soft);}
 
   .hidden-file{display:none;}
+
+  /* ---- Pintu PIN Panitia ---- */
+  body.locked .topbar, body.locked .wrap{ display:none; }
+  .lock{ position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; padding:20px;
+    background: radial-gradient(1000px 500px at 50% -10%, rgba(158,27,38,0.14), transparent 60%), var(--ink); }
+  body:not(.locked) .lock{ display:none; }
+  .lock .box{ width:100%; max-width:380px; background:var(--paper); border:1px solid var(--line); border-radius:16px;
+    box-shadow:var(--shadow); padding:26px 24px; text-align:center; }
+  .lock .lockic{ width:54px; height:54px; margin:0 auto 12px; color:var(--merah); }
+  .lock h2{ font-size:1.2rem; margin-bottom:6px; }
+  .lock p{ font-size:0.85rem; color:var(--ink-soft); margin:0 0 16px; line-height:1.5; }
+  .lock input{ width:100%; padding:13px 14px; border-radius:10px; border:1.6px solid var(--line);
+    font-family:"JetBrains Mono",monospace; font-size:1.15rem; letter-spacing:0.35em; text-align:center; }
+  .lock .btn{ width:100%; margin-top:12px; padding:13px; }
+  .lock .err{ min-height:18px; font-size:0.8rem; font-weight:800; color:var(--merah); margin-top:10px; }
+  .lock.shake{ animation:lockshake .4s; }
+  @keyframes lockshake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-5px);} 80%{transform:translateX(5px);} }
 </style>
 </head>
-<body>
+<body class="locked">
+
+<div class="lock" id="lockScreen">
+  <div class="box">
+    <svg class="lockic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.4"/></svg>
+    <h2>Area Panitia</h2>
+    <p>Halaman rekapitulasi ini khusus panitia. Masukkan PIN panitia untuk membuka hasil.</p>
+    <input type="password" id="pinInput" inputmode="numeric" autocomplete="off" placeholder="&bull;&bull;&bull;&bull;">
+    <button class="btn btn-primary" id="btnUnlock">Buka Rekap</button>
+    <div class="err" id="pinErr"></div>
+  </div>
+</div>
 
 <div class="topbar">
   <div class="brand">
@@ -118,6 +146,7 @@
   <button class="btn btn-light" id="btnCam">Aktifkan Kamera</button>
   <button class="btn btn-light" id="btnSound">Suara: ON</button>
   <button class="btn btn-light" id="btnFs">Layar Penuh</button>
+  <button class="btn btn-light" id="btnLock">Kunci</button>
   <button class="btn btn-danger" id="btnReset">Reset</button>
 </div>
 
@@ -175,6 +204,40 @@
   var RESULT_KEY = "pilkades_hasil_v1";
   var ROSTER_KEY = "pilkades_roster";
   var META_KEY = "pilkades_meta";
+  var UNLOCK_KEY = "pilkades_panitia_unlocked";
+
+  // ---- Pintu PIN khusus panitia ----
+  var PIN_PANITIA = window.PIN_PANITIA || "2026";
+  window.PIN_PANITIA = PIN_PANITIA;
+
+  function isUnlocked(){ try{ return sessionStorage.getItem(UNLOCK_KEY) === "1"; }catch(e){ return false; } }
+  function setLocked(lock){
+    document.body.classList.toggle("locked", !!lock);
+    var pi = document.getElementById("pinInput"), pe = document.getElementById("pinErr");
+    if(lock){ if(pe) pe.textContent = ""; if(pi){ pi.value = ""; setTimeout(function(){ pi.focus(); }, 50); } }
+    else { if(pi) pi.value = ""; if(pe) pe.textContent = ""; }
+  }
+  function tryUnlock(){
+    var pi = document.getElementById("pinInput"), pe = document.getElementById("pinErr");
+    var v = (pi.value || "").trim();
+    if(v === PIN_PANITIA){
+      try{ sessionStorage.setItem(UNLOCK_KEY, "1"); }catch(e){}
+      setLocked(false);
+      renderBoard();
+    } else {
+      pe.textContent = "PIN salah. Coba lagi.";
+      var box = document.getElementById("lockScreen");
+      box.classList.remove("shake"); void box.offsetWidth; box.classList.add("shake");
+      pi.value = ""; pi.focus();
+    }
+  }
+  document.getElementById("btnUnlock").addEventListener("click", tryUnlock);
+  document.getElementById("pinInput").addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); tryUnlock(); } });
+  document.getElementById("btnLock").addEventListener("click", function(){
+    try{ sessionStorage.removeItem(UNLOCK_KEY); }catch(e){}
+    if(camActive){ stopCam(); }
+    setLocked(true);
+  });
 
   var roster = loadJSON(ROSTER_KEY, []);
   var meta = loadJSON(META_KEY, { desa:"", kec:"" });
@@ -439,6 +502,7 @@
   });
 
   renderBoard();
+  setLocked(!isUnlocked());
 })();
 </script>
 </body>
